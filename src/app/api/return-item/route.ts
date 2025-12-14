@@ -6,30 +6,29 @@ export async function POST(req: Request) {
   try {
     const { studentId, itemName, quantity } = await req.json();
 
+    // 1. Validate Input
     const item = await prisma.item.findFirst({ where: { name: itemName } });
     const user = await prisma.users.findUnique({ where: { student_id: studentId } });
 
-    if (!item) return NextResponse.json({ error: "Item not found" }, { status: 404 });
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-    
-    // Check Stock
-    if (item.quantity < quantity) {
-      return NextResponse.json({ error: "Not enough stock" }, { status: 400 });
+    if (!item || !user) {
+      console.log("❌ Return Error: Invalid Item or User");
+      return NextResponse.json({ error: "Invalid Data" }, { status: 400 });
     }
 
+    // 2. Atomic Transaction
     await prisma.$transaction(async (tx) => {
-      // Decrement Stock
+      // Increment Stock
       await tx.item.update({
         where: { id: item.id },
-        data: { quantity: { decrement: quantity } },
+        data: { quantity: { increment: quantity } },
       });
 
-      // Log Borrow
+      // Log Return
       await tx.transaction.create({
         data: {
           student_id: user.student_id,
           student_name: user.student_name,
-          type: TransactionType.BORROW,
+          type: TransactionType.RETURN,
           quantity: quantity,
           item_name: item.name,
         },
@@ -39,7 +38,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error("🔥 Borrow Failed:", error);
-    return NextResponse.json({ error: "Borrow failed" }, { status: 500 });
+    console.error("🔥 Return Failed:", error); // Check terminal if this happens
+    return NextResponse.json({ error: "Return failed" }, { status: 500 });
   }
 }

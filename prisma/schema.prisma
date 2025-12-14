@@ -15,7 +15,6 @@ datasource db {
 
 enum Role {
   ADMIN
-  TL_VOLUNTEER
   STUDENT
 }
 
@@ -25,11 +24,15 @@ enum TransactionType {
 }
 
 model Users {
-  barcode String @id
-  student_id String
+  id           String  @id @default(cuid())
+  barcode      String? @unique 
+  student_id   String  @unique
   student_name String
-  role  Role @default(STUDENT)
-  verfied Boolean @default(false)
+  password     String? 
+  role         Role    @default(STUDENT)
+  verified     Boolean @default(false)
+
+createdAt DateTime @default(now())
 
   @@map("users")
 }
