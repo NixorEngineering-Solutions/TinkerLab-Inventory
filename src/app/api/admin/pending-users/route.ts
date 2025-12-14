@@ -13,10 +13,8 @@ export async function GET() {
       select: { 
         id: true, 
         student_name: true, 
-        student_id: true,
-        createdAt: true
+        student_id: true
       },
-      orderBy: { createdAt: 'desc' }
     });
     
     return NextResponse.json(users);
