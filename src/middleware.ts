@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose"; // We use 'jose' because it works on the Edge
+import { jwtVerify } from "jose"; 
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
@@ -68,6 +68,6 @@ export async function middleware(req: NextRequest) {
 // Apply this rule to all pages EXCEPT static files (images, fonts, Next.js internals)
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|NES_Logo.png).*)",
   ],
 };
